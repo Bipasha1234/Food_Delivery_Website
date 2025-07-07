@@ -32,7 +32,7 @@ app.use('/api/restaurant', require('./routes/restaurantRoutes'));
 app.use("/api", require('./routes/locationRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 
-// Socket.IO Events
+// Using socket real-time
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
