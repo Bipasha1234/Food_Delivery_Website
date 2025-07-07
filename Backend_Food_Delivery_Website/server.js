@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
   });
 });
 
-
+//Payment method payment gateway added- using stripe.
 const stripe = require('stripe')('sk_test_51RglMjQoydzmt3nR5JxpX0QO6WFbjD8aWjwdzXUpon6v1MC8wzoVaP2bXMXGgBBsqGz8zTIKRroGwQorWMJL887u001I8CgM8o'); // test key
 app.use(cors());
 app.use(express.json());
