@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const socketio = require('../config/socketio'); 
 const SECRET = process.env.JWT_SECRET || 'secret';
+//in real-time order requests and notifications are get along with menu availability showing and toggle status
 
 //  Fetch all accepted restaurants
 const getAcceptedRestaurants = async (req, res) => {
