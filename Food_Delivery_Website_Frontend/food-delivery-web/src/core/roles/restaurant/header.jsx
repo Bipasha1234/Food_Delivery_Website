@@ -145,10 +145,10 @@ export default function Header({ active = "Home" }) {
     { label: "Profile", path: "/restaurant/profile" },
     { label: "Notifications", path: "#" },
   ];
-
+//icon and notifications bell need now-
   return (
     <header className="bg-white shadow z-20 relative h-16">
-      <div className="flex flex-col md:flex-row justify-between items-center px-7 py-5 space-y-3 md:space-y-0">
+      <div className="flex flex-col md:flex-row justify-between items-center px-6 py-5 space-y-3 md:space-y-0">
         <nav className="w-full md:w-auto flex justify-around md:justify-start md:space-x-40 text-sm font-normal text-black">
           {navTabs.map((tab) => (
             <button
