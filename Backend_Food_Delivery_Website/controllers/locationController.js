@@ -1,6 +1,6 @@
 const Location = require("../models/locationModel");
 
-
+//to save location this code is here-
 const saveLocation = async (req, res) => {
   try {
     const userId = req.user.id; 
