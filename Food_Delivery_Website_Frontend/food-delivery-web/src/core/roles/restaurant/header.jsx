@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import img from "../../../assets/images/logo.png";
+// import img from "../../../assets/images/logo.png";
 // Connect once outside the component
 const socket = io("http://localhost:5000");
 
@@ -139,6 +139,7 @@ export default function Header({ active = "Home" }) {
   };
 
   const navTabs = [
+
     { label: "Home", path: `/restaurant/home/${restaurantId}` },
     { label: "View Order", path: `/restaurant/view-order/${restaurantId}` },
     { label: "Menu", path: "/restaurant/menu" },
@@ -148,9 +149,11 @@ export default function Header({ active = "Home" }) {
 //icon and notifications bell need now-
   return (
     <header className="bg-white shadow z-20 relative h-16">
+      
       <div className="flex flex-col md:flex-row justify-between items-center px-6 py-5 space-y-3 md:space-y-0">
+        
         <nav className="w-full md:w-auto flex justify-around md:justify-start md:space-x-40 text-sm font-normal text-black">
-          <img>{img}</img>
+          
           {navTabs.map((tab) => (
             <button
               key={tab.label}
