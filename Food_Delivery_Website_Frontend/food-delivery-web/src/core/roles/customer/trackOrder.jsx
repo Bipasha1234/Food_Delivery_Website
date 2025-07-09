@@ -194,7 +194,7 @@ useEffect(() => {
 
                   <p className="text-xs text-gray-600 text-center mt-12 max-w-lg mx-auto">
                     Your order will be updated in real-time by restaurants. Please
-                    contact the restaurant if any problem arises with your order.
+                    contact the us if any problem arises with your order.
                   </p>
                 </>
               )}

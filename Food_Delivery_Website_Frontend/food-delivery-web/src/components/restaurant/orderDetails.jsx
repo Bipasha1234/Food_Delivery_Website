@@ -63,7 +63,7 @@ useEffect(() => {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/inside/${orderId}`, {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
