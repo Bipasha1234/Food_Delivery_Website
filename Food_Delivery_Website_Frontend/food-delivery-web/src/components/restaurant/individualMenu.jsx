@@ -92,7 +92,7 @@ export default function IndividualMenu() {
     <div className="min-h-screen text-black relative">
       <Header active="Menu" />
 
-      <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
+      <div className="max-w-3xl mx-auto px-6 py-10 space-y-6 mt-20">
         <img
           src={
             menuData.image?.startsWith("http")

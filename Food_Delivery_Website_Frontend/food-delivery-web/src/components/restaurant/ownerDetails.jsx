@@ -92,7 +92,7 @@ export default function OwnerDetails() {
     <div className="min-h-screen text-black">
       <Header active="Profile" />
 
-      <div className="max-w-3xl mx-auto px-6 py-12 bg-white rounded shadow mt-20">
+      <div className="max-w-3xl mx-auto px-6 py-12 bg-white rounded shadow mt-32">
         <h2 className="text-lg font-semibold mb-4 text-start">Owner Details</h2>
 
     

@@ -498,7 +498,7 @@ const updateNoteForItem = (itemId, noteText) => {
      {isLoggedIn ? <Header /> : <GuestHeader />}
 
 
-      <div className="mt-28 bg-orange-100 p-8 flex justify-between items-center w-[1200px] mx-auto  rounded-lg shadow-md">
+      <div className="mt-28 bg-slate-100 p-8 flex justify-between items-center w-[1200px] mx-auto  rounded-lg shadow-md">
         <div className=''>
           <div className="flex items-start space-y-2 flex-col">
          <div className="flex items-center space-x-72">

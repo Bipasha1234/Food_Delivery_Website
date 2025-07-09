@@ -140,7 +140,7 @@ export default function Request() {
       </div>
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-          <div className="bg-[#da4668] text-white rounded px-10 py-8 text-center relative shadow-lg">
+          <div className="bg-[#da4668] text-white rounded px-10 py-8 text-center relative shadow-lg w-96">
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-3 right-4 text-white text-2xl font-bold"

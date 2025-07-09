@@ -108,7 +108,7 @@ export default function Profile() {
     <div className="min-h-screen  text-black">
       <Header active="Profile" />
 
-      <div className="max-w-2xl mx-auto px-6 py-10 space-y-8">
+      <div className="max-w-2xl mx-auto px-6 py-10 space-y-8 mt-20">
         <div className="relative">
           <img src={coverImage} alt="Cover" className="w-full h-48 object-cover rounded" />
           <FaCamera

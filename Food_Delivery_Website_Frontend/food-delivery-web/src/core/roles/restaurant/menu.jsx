@@ -105,7 +105,7 @@ const { restaurantId } = useParams();
     <div className="min-h-screen text-black ">
       <Header active="Menu"  />
 
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="max-w-5xl mx-auto px-6 py-10 ">
         <div className="flex justify-between items-center mb-6 bg-white shadow px-6 py-3 rounded">
           <div className="flex items-center gap-3">
             <span className="text-xl"><CgMenuBoxed/></span>

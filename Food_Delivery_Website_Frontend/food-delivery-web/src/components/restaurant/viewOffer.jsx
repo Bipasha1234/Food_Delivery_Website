@@ -95,7 +95,7 @@ export default function RestaurantViewOffers() {
     <div className="min-h-screen text-black">
       <Header active="Home" />
 
-      <div className="max-w-4xl mx-auto px-6 py-10 ">
+      <div className="max-w-4xl mx-auto px-6 py-10 mt-20">
         <h2 className="text-base font-bold mb-5">Discount and Offers</h2>
 
         <div className="flex justify-between items-center">

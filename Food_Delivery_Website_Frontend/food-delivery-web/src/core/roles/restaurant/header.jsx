@@ -148,7 +148,7 @@ export default function Header({ active = "Home" }) {
   ];
 
   return (
-    <header className="bg-white shadow z-20 relative h-20">
+    <header className="bg-white shadow z-50 fixed top-0 left-0 w-full h-20">
       
       <div className="flex flex-col md:flex-row justify-between items-center px-4 py-5 space-y-3 md:space-y-0">
         
@@ -180,7 +180,7 @@ export default function Header({ active = "Home" }) {
           <>
             {tab.icon}
             {tab.label === "Notifications" && unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full px-2 py-[1px]">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full px-2 py-[1px]">
                 {unreadCount}
               </span>
             )}
@@ -214,7 +214,7 @@ export default function Header({ active = "Home" }) {
 
       {/* Notification Dropdown */}
       {showNotification && (
-        <div className="absolute right-5 top-12 w-80 bg-white shadow-lg rounded border border-gray-200 z-50">
+        <div className="absolute right-5 top-16 w-80 bg-white shadow-lg rounded border border-gray-200 z-50">
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <h2 className="font-semibold text-gray-800 text-base">Notifications</h2>
             <FaTimes

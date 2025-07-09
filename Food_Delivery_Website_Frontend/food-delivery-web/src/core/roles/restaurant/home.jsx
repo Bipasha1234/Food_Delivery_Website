@@ -156,7 +156,7 @@ export default function RestaurantHome() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans">
+    <div className="min-h-screen bg-white text-black font-sans mt-20">
       <Header active="Home" />
 
       <Link to="/view-offers" className="block">

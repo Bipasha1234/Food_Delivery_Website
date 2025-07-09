@@ -58,7 +58,7 @@ export default function ViewOrder() {
     <div className="min-h-screen text-black">
       <Header active="View Order" />
 
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="max-w-5xl mx-auto px-6 py-10 mt-20">
         <div className="flex gap-4 mb-6 justify-center items-center">
           <button
             onClick={() => setActiveTab("Accepted")}
