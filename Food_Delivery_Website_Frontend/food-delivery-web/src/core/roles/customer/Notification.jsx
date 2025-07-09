@@ -22,11 +22,11 @@ export default function NotificationPanel() {
 
   if (msg.includes("rejected")) return { icon: <FaTimesCircle size={20}/>, color: "text-red-600" };
   if (msg.includes("accepted")) return { icon: <FaCheckCircle size={20}/>, color: "text-green-600" };
-  if (msg.includes("order taken")) return { icon: <FaUtensils size={20}/>, color: "text-yellow-600" };
-  if (msg.includes("preparing")) return { icon: <FaUtensils size={20}/>, color: "text-yellow-600" };
-  if (msg.includes("handed to delivery") || msg.includes("dispatched")) return { icon: <FaTruck size={20}/>, color: "text-blue-600" };
-  if (msg.includes("coming to address")) return { icon: <FaTruck size={20}/>, color: "text-indigo-600" };
-  if (msg.includes("delivered")) return { icon: <FaCheckCircle size={20}/> , color: "text-green-700" };
+  if (msg.includes("order taken")) return { icon: <FaUtensils size={20}/>, color: "text-black" };
+  if (msg.includes("preparing")) return { icon: <FaUtensils size={20}/>, color: "text-black" };
+  if (msg.includes("handed to delivery") || msg.includes("dispatched")) return { icon: <FaTruck size={20}/>, color: "text-black" };
+  if (msg.includes("coming to address")) return { icon: <FaTruck size={20}/>, color: "text-black" };
+  if (msg.includes("delivered")) return { icon: <FaCheckCircle size={20}/> , color: "text-black" };
 
   return { icon: null, color: "text-gray-800" };
 };
