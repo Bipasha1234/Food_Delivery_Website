@@ -7,6 +7,7 @@ import HomeImage5 from "../../../assets/images/image4.jpeg";
 import HomeImage2 from "../../../assets/images/image5.png";
 import HomeImage4 from "../../../assets/images/image6.png";
 
+import axios from "axios";
 import Header from "../../../components/afterLoginHomePageHeader";
 import Footer from "../../../components/footer";
 import GetListedModal from "../../../components/getListedModal";
@@ -17,7 +18,7 @@ export default function Home() {
 const location = useLocation();
   const images = [HomeImage4, HomeImage2, HomeImage3, HomeImage5];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
+  const [savedAddress, setSavedAddress] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -30,7 +31,9 @@ const location = useLocation();
     navigate(path);
   }
 };
-
+  const shortAddress = savedAddress && savedAddress.length > 40
+    ? savedAddress.substring(0, 37) + "..."
+    : (savedAddress || "Set your location")
   // Auto slide every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -55,6 +58,30 @@ const location = useLocation();
       navigate(`/delivo-eats/all-restaurant?search=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
+
+   useEffect(() => {
+    const fetchSavedLocation = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.log("No token found");
+          return;
+        }
+
+        const res = await axios.get("http://localhost:5000/api/location", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.data && res.data.address) {
+          setSavedAddress(res.data.address);
+        }
+      } catch (error) {
+        console.error("Error fetching saved location:", error);
+      }
+    };
+
+    fetchSavedLocation();
+  }, []);
 const token = localStorage.getItem("token");
 const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
 
@@ -71,7 +98,7 @@ const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
           <FaMapMarkerAlt className="text-orange-500 mr-2 text-sm" />
           <div className="text-sm text-gray-700">
             
-            <span className="font-medium truncate">Set your location</span>
+            <span className="font-medium truncate">{shortAddress}</span>
           </div>
         </div>
       </div>

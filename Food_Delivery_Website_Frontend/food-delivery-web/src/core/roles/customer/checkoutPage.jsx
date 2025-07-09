@@ -29,6 +29,7 @@ const [restaurantName, setRestaurantName] = useState("");
 
   const [showSummary, setShowSummary] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+const [addressError, setAddressError] = useState("");
 
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -277,6 +278,15 @@ const updateNoteForItem = (itemId, noteText) => {
       <div className="min-h-screen mt-20 p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           <h3 className="font-bold text-xl mb-2">Checkout</h3>
+            {addressError && (
+            <div
+              className="flex items-center bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 justify-center text-[12px]"
+              role="alert"
+            >
+              ⚠️
+              <p className="font-normal text-[12px] ml-2">{addressError}</p>
+            </div>
+          )}
 
           <div className="bg-white rounded shadow p-4">
             <h3 className="font-medium text-sm mb-2">Delivery Address</h3>
@@ -346,27 +356,37 @@ const updateNoteForItem = (itemId, noteText) => {
             </div>
           </div>
           <div className="flex justify-center space-x-8">
+            
             <button
               onClick={() => navigate(-1)}
               className="bg-gray-100 hover:bg-gray-200 text-gray-800  font-medium text-sm h-10 w-32 rounded transition"
             >
               Go Back
             </button>
-            <button
-                  onClick={() => {
+               <button
+              onClick={() => {
+                if (!savedAddress) {
+                  setAddressError("Please set your delivery address before proceeding.");
+                  return;
+                }
+
+                setAddressError(""); // clear error if address is valid
+
                 if (paymentMethod === "online") {
-                  setShowPaymentModal(true);  
+                  setShowPaymentModal(true);
                 } else {
-                  setShowSummary(true);       
+                  setShowSummary(true);
                 }
               }}
-              disabled={orderPlaced || loading || basket.length === 0}
-              className={`bg-orange-500 hover:bg-orange-600 text-white font-medium text-sm h-10 w-32 rounded hover:bg-300 transition ${
-                (orderPlaced || loading || basket.length === 0) ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              Continue
-            </button>
+
+  disabled={orderPlaced || loading || basket.length === 0}
+  className={`bg-orange-500 hover:bg-orange-600 text-white font-medium text-sm h-10 w-32 rounded hover:bg-300 transition ${
+    (orderPlaced || loading || basket.length === 0) ? "opacity-50 cursor-not-allowed" : ""
+  }`}
+>
+  Continue
+</button>
+
           </div>
         </div>
 
@@ -393,7 +413,7 @@ const updateNoteForItem = (itemId, noteText) => {
             <div className="text-xs space-y-1 w-[10.5rem]">
               <p className="text-xs font-bold text-gray-800">Rs. {item.price}</p>
               <h4 className="font-bold text-black text-sm">{item.name}</h4>
-              <p className="text-gray-400 text-xs">{item.shortDescription}</p>
+              <p className="text-gray-400 text-xs w-48">{item.shortDescription}</p>
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => handleQuantityChange(item._id, Math.max(item.quantity - 1, 1))}

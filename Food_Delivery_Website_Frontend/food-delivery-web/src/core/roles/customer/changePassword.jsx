@@ -64,7 +64,7 @@ export default function ChangePassword() {
 
           {error && (
             <div
-              className="flex items-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 justify-center text-[12px]"
+              className="flex items-center bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 justify-center text-[12px]"
               role="alert"
             >
               ⚠️

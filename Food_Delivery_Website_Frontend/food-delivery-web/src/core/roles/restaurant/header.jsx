@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaBell, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-// import img from "../../../assets/images/logo.png";
+import img from "../../../assets/images/logo.png";
 // Connect once outside the component
 const socket = io("http://localhost:5000");
 
@@ -139,22 +139,31 @@ export default function Header({ active = "Home" }) {
   };
 
   const navTabs = [
-
+    {img:img},
     { label: "Home", path: `/restaurant/home/${restaurantId}` },
     { label: "View Order", path: `/restaurant/view-order/${restaurantId}` },
     { label: "Menu", path: "/restaurant/menu" },
     { label: "Profile", path: "/restaurant/profile" },
-    { label: "Notifications", path: "#" },
+    { icon: <FaBell size={18} />, label: "Notifications", path: "#" },
   ];
 //icon and notifications bell need now-
   return (
-    <header className="bg-white shadow z-20 relative h-16">
+    <header className="bg-white shadow z-20 relative h-20">
       
       <div className="flex flex-col md:flex-row justify-between items-center px-6 py-5 space-y-3 md:space-y-0">
         
-        <nav className="w-full md:w-auto flex justify-around md:justify-start md:space-x-40 text-sm font-normal text-black">
+        <nav className="w-full md:w-auto flex justify-around md:justify-start md:space-x-40 text-sm items-center font-normal text-black">
           
-          {navTabs.map((tab) => (
+          {navTabs.map((tab, idx) =>
+    tab.img ? (
+      <img
+        key={idx}
+        src={tab.img}
+        alt="Logo"
+        className="h-12 w-auto  cursor-pointer"
+        onClick={() => navigate(`/restaurant/home/${restaurantId}`)}
+      />
+    ) : (
             <button
               key={tab.label}
               onClick={() =>
@@ -162,21 +171,29 @@ export default function Header({ active = "Home" }) {
                   ? setShowNotification(!showNotification)
                   : navigate(tab.path)
               }
-              className={`relative transition-all duration-150 ${
-                tab.label === active ? "border-b-[2px] border-black font-semibold" : ""
-              }`}
-            >
-              {tab.label}
-              {tab.label === "Notifications" && unreadCount > 0 && (
-                <span className="absolute -top-2 -right-5 bg-red-500 text-white text-[10px] rounded-full px-2 py-[1px]">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
+             className={`relative transition-all duration-150 flex items-center justify-center ${
+          tab.label === active ? "border-b-[2px] border-black font-semibold" : ""
+        }`}
+        style={tab.icon ? { width: 36, height: 36 } : {}}
+      >
+        {tab.icon ? (
+          <>
+            {tab.icon}
+            {tab.label === "Notifications" && unreadCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full px-2 py-[1px]">
+                {unreadCount}
+              </span>
+            )}
+          </>
+        ) : (
+          tab.label
+        )}
+      </button>
+    )
+  )}
+</nav>
 
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-1 text-xs">
           <span className={`font-medium ${isOnline ? "text-green-700" : "text-red-600"}`}>
             {isOnline ? "Online" : "Offline"}
           </span>
