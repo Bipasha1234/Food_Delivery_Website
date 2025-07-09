@@ -1,7 +1,7 @@
 const Offer = require('../models/offer');
 const mongoose = require('mongoose');
 
-
+//to get offers and save offers code added"
 exports.getOffers = async (req, res) => {
   try {
     const offers = await Offer.find().sort({ createdAt: -1 });
