@@ -22,6 +22,7 @@ import Header from '../components/afterLoginHomePageHeader';
 import Footer from '../components/footer';
 import GuestHeader from '../components/header';
 import MenuGrid from '../components/menuGrid';
+//real-time menu fetching and ordering
 const socket = io("http://localhost:5000");
 
 export default function IndividualRestaurantPage() {

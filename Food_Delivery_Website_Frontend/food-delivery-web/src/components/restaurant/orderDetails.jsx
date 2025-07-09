@@ -42,12 +42,10 @@ useEffect(() => {
   });
   setSocket(newSocket);
 
-  // ✅ Join the restaurant's room
   if (restaurantId) {
     newSocket.emit("joinRoom", restaurantId);
   }
 
-  // ✅ Listen for real-time status update
   newSocket.on("orderStatusUpdated", (update) => {
     if (update.orderId === orderId) {
       setOrder((prev) => (prev ? { ...prev, status: update.status } : prev));
@@ -63,7 +61,7 @@ useEffect(() => {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      const res = await fetch(`http://localhost:5000/api/orders/inside/${orderId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
