@@ -1,6 +1,7 @@
 const Menu = require("../models/menuModel");
 const mongoose = require("mongoose");
 
+//to add menu,delete,edit,get menu by restaurant id added
 const addMenuItem = async (req, res) => {
   try {
     const {
