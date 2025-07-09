@@ -92,7 +92,7 @@ useEffect(() => {
     <div className="min-h-screen text-black">
       <Header active="View Order" />
 
-      <div className="max-w-3xl mx-auto px-6 py-10 space-y-6 text-sm">
+      <div className="max-w-3xl mx-auto px-6 py-10 space-y-6 text-sm mt-20">
         <div className="bg-white rounded shadow p-6 space-y-3">
           <div className="flex justify-between items-center">
             <h2 className="text-sm font-semibold">Order ID: {order._id}</h2>
