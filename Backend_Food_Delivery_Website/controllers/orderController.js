@@ -144,7 +144,7 @@ const updateOrderStatus = async (req, res) => {
   const { orderId } = req.params;
   const { status, reason } = req.body;
 
-  if (!['Accepted', 'Rejected'].includes(status)) {
+  if (!['Accepted', 'Rejected', 'Order Taken', 'Preparing', 'Handed to Delivery', 'Coming to Address','Delivered'].includes(status)) {
     return res.status(400).json({ message: 'Invalid status' });
   }
 
@@ -158,26 +158,26 @@ const updateOrderStatus = async (req, res) => {
 
     const io = req.app.get('io'); // get socket.io instance
 
-    // Emit order update to restaurant room (join room by restaurantId)
+    // Emit order update to restaurant room
     io.to(order.restaurantId.toString()).emit('orderStatusUpdated', {
       orderId: order._id,
       status,
       reason: order.reason || null,
     });
 
-    // Optionally, emit a notification to user if rejected
-    if (status === 'Rejected') {
-  const notif = await notification.create({
-    userId: order.userId,
-    message: `Your order from "${order.restaurantName}" has been rejected. Reason: "${order.reason}"`,
-  });
+    // Send notification for any status update
+    const notificationMessage =
+      status === 'Rejected'
+        ? `Your order from "${order.restaurantName}" has been rejected. Reason: "${reason || 'No reason provided'}"`
+        : `Your order from "${order.restaurantName}" is now "${status}".`;
 
-  // Emit to user
-  io.to(order.userId.toString()).emit('newNotification', notif);
+    const notif = await notification.create({
+      userId: order.userId,
+      message: notificationMessage,
+    });
 
-  io.to("adminRoom").emit('newNotification', notif);  
-}
-
+    io.to(order.userId.toString()).emit('newNotification', notif);
+    io.to("adminRoom").emit('newNotification', notif);
 
     res.json({ message: `Order ${status.toLowerCase()} successfully`, order });
   } catch (error) {
@@ -185,7 +185,6 @@ const updateOrderStatus = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 const getAcceptedOrdersByRestaurant = async (req, res) => {
   const { restaurantId } = req.params;
@@ -267,28 +266,44 @@ const updateOrderStatus2 = async (req, res) => {
     }
 
     order.status = status;
-
     await order.save();
 
-    const io = req.app.get('io'); // get socket.io instance
+    const io = req.app.get('io');
 
-    // Emit order update to restaurant room
+    // Emit order update to all relevant rooms
     io.to(order.restaurantId.toString()).emit('orderStatusUpdated', {
       orderId: order._id,
       status,
     });
 
-    // Emit to user room
     io.to(order.userId.toString()).emit('orderStatusUpdated', {
       orderId: order._id,
       status,
     });
 
-    // Optional: emit to admin room
     io.to("adminRoom").emit('orderStatusUpdated', {
       orderId: order._id,
       status,
     });
+
+    // 🟡 Notification Message
+    let message;
+    if (status === 'Rejected') {
+      message = `Your order from "${order.restaurantName}" has been rejected.`;
+    } else if (status === 'Accepted') {
+      message = `Your order from "${order.restaurantName}" has been accepted.`;
+    } else {
+      message = `Your order from "${order.restaurantName}" is now "${status}".`;
+    }
+
+    // 🔔 Create and emit notification
+    const notif = await notification.create({
+      userId: order.userId,
+      message,
+    });
+
+    io.to(order.userId.toString()).emit('newNotification', notif);
+    io.to("adminRoom").emit('newNotification', notif);
 
     res.json({ message: `Order status updated to ${status}.`, order });
   } catch (error) {
@@ -296,6 +311,7 @@ const updateOrderStatus2 = async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 };
+
 
 const getOrderById = async (req, res) => {
   const { orderId } = req.params;
