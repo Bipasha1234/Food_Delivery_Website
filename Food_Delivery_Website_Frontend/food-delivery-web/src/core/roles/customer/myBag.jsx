@@ -299,7 +299,7 @@ const handleAddMoreItems = () => {
           </div>
           <div className="text-xs">
             <h4 className="text-gray-800 text-sm">{item.name}</h4>
-            <p className="text-gray-500 text-xs w-80">{item.shortDescription}</p>
+            <p className="text-gray-400 text-xs w-80">{item.shortDescription}</p>
             
           
 
