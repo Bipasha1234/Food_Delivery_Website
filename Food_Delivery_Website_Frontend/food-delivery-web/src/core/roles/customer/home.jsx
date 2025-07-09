@@ -265,13 +265,21 @@ const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
                 <div className="text-sm font-semibold text-gray-800">Reach More Customers</div>
               </div>
             </div>
-              <div></div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-medium text-sm h-10 w-32 rounded hover:bg-300 transition"
-          >
-            Send Request
-          </button>
+                          <div>
+  <button
+    onClick={() => setShowModal(true)}
+    className="bg-orange-500 hover:bg-orange-600 text-white font-medium text-sm h-10 w-32 rounded hover:bg-300 transition"
+  >
+    Send Request
+  </button>
+
+  {/* Contact Info Below */}
+  <p className="text-xs text-gray-500 mt-4">
+    For any questions, contact us at:{" "}
+    <span className="text-orange-600 font-medium">support@delivoeats.com</span> or call{" "}
+    <span className="text-orange-600 font-medium">+977-9841459951</span>
+  </p>
+</div>
         </div>
       </div>
 

@@ -27,7 +27,7 @@ export default function HelpCenter() {
         </div>
 
         <h1 className="text-sm text-start mt-5 font-semibold "> Email Us: </h1>
-        <p className="text-sm text-start text-gray-600 ">delivoeats@gmail.com</p>
+        <p className="text-sm text-start text-gray-600 ">support@delivoeats.com</p>
        
       </div>
     </div>
