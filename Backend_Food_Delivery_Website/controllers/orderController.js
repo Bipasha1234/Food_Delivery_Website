@@ -286,7 +286,7 @@ const updateOrderStatus2 = async (req, res) => {
       status,
     });
 
-    // 🟡 Notification Message
+    // Notification Message
     let message;
     if (status === 'Rejected') {
       message = `Your order from "${order.restaurantName}" has been rejected.`;
@@ -296,7 +296,7 @@ const updateOrderStatus2 = async (req, res) => {
       message = `Your order from "${order.restaurantName}" is now "${status}".`;
     }
 
-    // 🔔 Create and emit notification
+    //  Create and emit notification
     const notif = await notification.create({
       userId: order.userId,
       message,

@@ -3,7 +3,7 @@ const Restaurant = require('../models/restaurant')
 const Notification = require('../models/notification'); 
 const User = require('../models/customer'); 
 const jwt = require('jsonwebtoken');
-
+//code for admin side added 
 const loginAdmin = (req, res) => {
   const { email, password } = req.body;
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
