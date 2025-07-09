@@ -5,7 +5,7 @@ export default function HelpCenter() {
     <div className="min-h-screen  text-black">
       <Header active="Profile" />
 
-      <div className="max-w-xl mx-auto px-6 py-12 text-center bg-white rounded-xl shadow  mt-20">
+      <div className="max-w-xl mx-auto px-6 py-12 text-center bg-white rounded-xl shadow  mt-36">
         {/* Logo and Brand */}
         <div>
           <img
