@@ -41,7 +41,7 @@ import ViewOrder from './core/roles/restaurant/viewOrder';
 export default function App() {
   return (
     <Router>
-
+{/* with all the routes-- code completed for frontend */}
       {/* // CUSTOMER SIDE ROUTES----- */}
        <NotificationPanel />
          <ProfilePanel />
