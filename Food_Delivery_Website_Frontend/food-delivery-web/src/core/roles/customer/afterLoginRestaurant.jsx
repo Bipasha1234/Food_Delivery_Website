@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { FaLock, FaSearch, FaTimes } from 'react-icons/fa';
+import { FaHeart, FaLock, FaSearch, FaTimes } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import img from "../../../assets/images/loginImage.png";
@@ -32,6 +32,7 @@ export default function Restaurant() {
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchFocused, setSearchFocused] = useState(false);
+const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
     const fetchAcceptedRestaurants = async () => {
@@ -94,14 +95,10 @@ export default function Restaurant() {
     };
   }, []);
 
-  const handleCardClick = (restaurant) => {
-    const token = localStorage.getItem("token");
-    if (!token || token.trim() === "" || token === "undefined") {
-      navigate("/login");
-    } else {
-      navigate(`/certain-restaurant/${restaurant._id}`);
-    }
-  };
+ const handleCardClick = (restaurant) => {
+  navigate(`/certain-restaurant/${restaurant._id}`);
+};
+
 
   const clearSearchInput = () => {
     setSearchInput("");
@@ -145,6 +142,63 @@ export default function Restaurant() {
     setActiveFilterKeywords(newKeywords);
     navigate(`/delivo-eats/all-restaurant?search=${encodeURIComponent(trimmedInput)}`);
   };
+
+ useEffect(() => {
+  const fetchFavorites = async () => {
+    const token = localStorage.getItem('token');
+    if (!token || token === "undefined") return;
+
+    try {
+      const res = await axios.get('http://localhost:5000/api/customer/get/favorites', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const ids = res.data.map(r => r._id);
+      setFavoriteIds(ids);
+    } catch (error) {
+      console.error('Failed to fetch favorites', error);
+    }
+  };
+
+  fetchFavorites();
+}, []);
+
+
+
+const toggleFavorite = async (e, restaurantId) => {
+  e.stopPropagation(); // prevent card navigation on icon click
+
+  const token = localStorage.getItem('token');
+ if (!token || token === "undefined") {
+  navigate("/login", {
+    state: { from: location.pathname + location.search },
+  });
+  return;
+}
+
+
+  const isFav = favoriteIds.includes(restaurantId);
+
+  try {
+    if (isFav) {
+      await axios.post('http://localhost:5000/api/customer/favorites/remove',
+        { restaurantId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setFavoriteIds(prev => prev.filter(id => id !== restaurantId));
+    } else {
+      await axios.post('http://localhost:5000/api/customer/favorites/add',
+        { restaurantId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setFavoriteIds(prev => [...prev, restaurantId]);
+    }
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+  }
+};
+
+
 const token = localStorage.getItem("token");
 const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
 
@@ -234,11 +288,26 @@ const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
               onClick={() => handleCardClick(restaurant)}
               className="p-4 bg-white rounded hover:shadow-lg cursor-pointer transition"
             >
-              <img
-                src={restaurant.logoImage || img}
-                alt={restaurant.restaurantName}
-                className="w-full h-48 object-cover rounded mb-3"
-              />
+              <div className="relative mb-3">
+  <img
+    src={restaurant.logoImage || img}
+    alt={restaurant.restaurantName}
+    className="w-full h-48 object-cover rounded"
+  />
+ <button
+  className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm p-1.5 rounded-full hover:bg-white shadow"
+  onClick={(e) => toggleFavorite(e, restaurant._id)}
+  title={favoriteIds.includes(restaurant._id) ? "Remove from Favorites" : "Add to Favorites"}
+>
+  {favoriteIds.includes(restaurant._id) ? (
+    <FaHeart className="text-red-600 fill-red-600" /> // filled heart
+  ) : (
+    <FaHeart className="text-gray-600 hover:text-red-500" /> // outlined heart
+  )}
+</button>
+
+</div>
+
               <h3 className="text-base font-semibold mb-1 flex items-center justify-between">
                 {restaurant.restaurantName}
                 {!restaurant.isOnline && (

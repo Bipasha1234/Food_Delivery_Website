@@ -242,9 +242,12 @@ useEffect(() => {
 const toggleFavorite = async () => {
   const token = localStorage.getItem('token');
   if (!token || token === "undefined") {
-    navigate("/login");
-    return;
-  }
+  navigate("/login", {
+    state: { from: `/certain-restaurant/${restaurant._id}` }
+  });
+  return;
+}
+
 
   try {
     if (isFavorite) {
@@ -504,7 +507,7 @@ const updateNoteForItem = (itemId, noteText) => {
          <div className="flex items-center space-x-72">
   <FaHeart
     onClick={toggleFavorite}
-    className={`text-4xl cursor-pointer transition ${isFavorite ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
+    className={`text-5xl cursor-pointer transition ${isFavorite ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
     title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
   />
 
@@ -667,6 +670,10 @@ const updateNoteForItem = (itemId, noteText) => {
         <div className="w-full lg:w-9/12">
         {activeCategory === 'All' ? (
   <div className="">
+
+     {filteredMenus.length === 0 && filteredOffers.length === 0 && (
+      <p className="text-center text-gray-500 text-lg mt-6">No menu available for this restaurant.</p>
+    )}
     {/* Show Offers */}
     {filteredOffers.length > 0 && (
       <>

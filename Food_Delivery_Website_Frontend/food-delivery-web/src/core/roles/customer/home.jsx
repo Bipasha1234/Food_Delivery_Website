@@ -9,10 +9,10 @@ import HomeImage4 from "../../../assets/images/image6.png";
 
 import axios from "axios";
 import Header from "../../../components/afterLoginHomePageHeader";
+import Restaurants from "../../../components/fewRestaurant";
 import Footer from "../../../components/footer";
 import GetListedModal from "../../../components/getListedModal";
 import GuestHeader from "../../../components/header";
-import Restaurants from "../../../components/restaurants";
 export default function Home() {
   const navigate = useNavigate();
 const location = useLocation();

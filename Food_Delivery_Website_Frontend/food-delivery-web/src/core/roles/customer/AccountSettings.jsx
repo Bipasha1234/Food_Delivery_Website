@@ -246,7 +246,7 @@ const [message, setMessage] = useState("");
               <span>Rs. {selectedOrder.deliveryFee}</span>
             </div>
             <div className="bg-gray-200 mt-4 p-3 rounded text-black font-bold text-base flex justify-between">
-              <span>Total to pay</span>
+              <span>Total Paid</span>
               <span>
                 Rs. {selectedOrder.basket.reduce((sum, item) => sum + item.price, 0) + selectedOrder.deliveryFee}
               </span>

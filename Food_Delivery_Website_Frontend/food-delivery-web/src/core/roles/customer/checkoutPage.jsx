@@ -1,8 +1,8 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { FaPlus, FaTimes, FaTrash } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { FaMapMarkerAlt, FaPlus, FaTimes, FaTrash } from "react-icons/fa";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../../../components/afterLoginHomePageHeader";
 import Footer from "../../../components/footer";
@@ -18,6 +18,7 @@ const { restaurantId } = useParams();
 const { offerId  } = location.state || {};
 
 const [restaurantName, setRestaurantName] = useState("");
+const errorRef = useRef(null);
 
 
   const [savedAddress, setSavedAddress] = useState("");
@@ -271,6 +272,11 @@ const updateNoteForItem = (itemId, noteText) => {
     if (!restaurantId) return;
     navigate(`/certain-restaurant/${restaurantId}`);
   };
+useEffect(() => {
+  if (addressError && errorRef.current) {
+    errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}, [addressError]);
 
   return (
     <>
@@ -279,19 +285,35 @@ const updateNoteForItem = (itemId, noteText) => {
         <div className="md:col-span-2 space-y-6">
           <h3 className="font-bold text-xl mb-2">Checkout</h3>
             {addressError && (
-            <div
-              className="flex items-center bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 justify-center text-[12px]"
-              role="alert"
-            >
-              ⚠️
-              <p className="font-normal text-[12px] ml-2">{addressError}</p>
-            </div>
-          )}
+  <div
+    ref={errorRef}
+    className="flex items-center bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 justify-center text-[12px]"
+    role="alert"
+  >
+    ⚠️
+    <p className="font-normal text-[12px] ml-2">{addressError}</p>
+  </div>
+)}
 
-          <div className="bg-white rounded shadow p-4">
-            <h3 className="font-medium text-sm mb-2">Delivery Address</h3>
-            <p className="text-xs text-gray-500">{savedAddress || "No saved address found"}</p>
-          </div>
+       <div className="bg-white rounded shadow p-4 flex justify-between items-center">
+  <div>
+    <h3 className="font-medium text-sm mb-2">Delivery Address</h3>
+    <p className="text-xs text-gray-500">
+      {savedAddress || "No saved address found"}
+    </p>
+  </div>
+
+  {!savedAddress && (
+  <Link
+    to="/delivo-eats/location"
+    state={{ from: location.pathname }} // pass current path
+    className="text-orange-500 hover:text-orange-700"
+  >
+    <FaMapMarkerAlt size={20} title="Set your location" />
+  </Link>
+)}
+
+</div>
 
           <div className="bg-white rounded shadow p-4 space-y-2">
             <h3 className="font-medium text-sm mb-2">Delivery Date and Time</h3>

@@ -1,12 +1,13 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaMapMarkerAlt, FaSearch, FaTimes } from "react-icons/fa";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/afterLoginHomePageHeader";
 import GuestHeader from "../components/header";
 import Footer from "./footer";
+
 const customIcon = L.divIcon({
   className: "custom-marker-icon",
   html: `<div class="text-red-600 text-4xl select-none">📍</div>`,
@@ -16,7 +17,15 @@ const customIcon = L.divIcon({
 
 export default function SetLocation() {
   const navigate = useNavigate();
-const [errorMessage, setErrorMessage] = useState("");
+  const location = useLocation();
+
+
+
+
+
+  const from = location.state?.from || "/";
+  const [errorMessage, setErrorMessage] = useState("");
+  const errorRef = useRef(null);
 
   const [markerPosition, setMarkerPosition] = useState(null);
   const [address, setAddress] = useState("");
@@ -24,6 +33,12 @@ const [errorMessage, setErrorMessage] = useState("");
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingSavedLocation, setLoadingSavedLocation] = useState(true);
+
+  useEffect(() => {
+    if (errorMessage && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [errorMessage]);
 
   useEffect(() => {
     const fetchSavedLocation = async () => {
@@ -44,7 +59,7 @@ const [errorMessage, setErrorMessage] = useState("");
           return;
         }
         const data = await response.json();
-        if (data && data.lat && data.lon && data.address) { 
+        if (data && data.lat && data.lon && data.address) {
           setMarkerPosition([data.lat, data.lon]);
           setAddress(data.address);
         }
@@ -61,10 +76,12 @@ const [errorMessage, setErrorMessage] = useState("");
   useEffect(() => {
     if (!loadingSavedLocation && markerPosition === null) {
       setMarkerPosition([27.7172, 85.3240]);
-      setAddress("No Location set yet!");
+      setAddress("");
     }
   }, [loadingSavedLocation, markerPosition]);
+
   const handleSearch = async () => {
+    setErrorMessage(""); // clear previous error on new search
     try {
       const viewbox = "85.244,27.784,85.398,27.601"; // Kathmandu bbox
       const res = await fetch(
@@ -79,11 +96,11 @@ const [errorMessage, setErrorMessage] = useState("");
         setMarkerPosition(newPosition);
         setAddress(display_name);
       } else {
-      setErrorMessage("Location not found inside Kathmandu. Please try a different place.");
-
+        setErrorMessage("Location not found inside Kathmandu. Please try a different place.");
       }
     } catch (error) {
       console.error("Error searching location:", error);
+      setErrorMessage("Failed to search location. Please try again.");
     }
   };
 
@@ -92,15 +109,24 @@ const [errorMessage, setErrorMessage] = useState("");
       alert("Geolocation is not supported by your browser.");
       return;
     }
+
     setLoadingLocation(true);
+
+    // Wait 8 seconds minimum before turning off loading
+    const loadingTimeout = setTimeout(() => {
+      setLoadingLocation(false);
+    }, 1000);
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        clearTimeout(loadingTimeout);
         const { latitude, longitude } = pos.coords;
         setMarkerPosition([latitude, longitude]);
         fetchAddress(latitude, longitude);
         setLoadingLocation(false);
       },
       (error) => {
+        clearTimeout(loadingTimeout);
         switch (error.code) {
           case error.PERMISSION_DENIED:
             alert("Permission denied. Please allow location access.");
@@ -156,10 +182,18 @@ const [errorMessage, setErrorMessage] = useState("");
   }
 
   const saveLocationToBackend = async () => {
-    if (!markerPosition) return;
+    if (!markerPosition) {
+      setErrorMessage("Please select a location before confirming.");
+      return;
+    }
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        setErrorMessage("You must be logged in to save location.");
+        setSaving(false);
+        return;
+      }
       const response = await fetch("http://localhost:5000/api/location", {
         method: "POST",
         headers: {
@@ -169,25 +203,24 @@ const [errorMessage, setErrorMessage] = useState("");
         body: JSON.stringify({
           address,
           lat: markerPosition[0],
-          lon: markerPosition[1], 
+          lon: markerPosition[1],
         }),
       });
 
       if (!response.ok) {
         const err = await response.json();
-        alert("Failed to save location: " + (err.error || "Unknown error"));
+        setErrorMessage("Before confirming, please choose location first!");
         setSaving(false);
         return;
       }
 
-        navigate("/delivo-eats", {
-          state: { confirmedAddress: address, markerPosition },
-          replace: true, 
-        });
-
+      navigate(from, {
+        state: { confirmedAddress: address, markerPosition },
+        replace: true,
+      });
     } catch (error) {
       console.error("Error saving location:", error);
-      alert("Error saving location. Please try again.");
+      setErrorMessage("Error saving location. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -200,78 +233,82 @@ const [errorMessage, setErrorMessage] = useState("");
       </div>
     );
   }
-const token = localStorage.getItem("token");
-const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
+
+  const token = localStorage.getItem("token");
+  const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
 
   return (
     <>
-{isLoggedIn ? <Header /> : <GuestHeader />}
-      <div className="min-h-screen flex items-center justify-center p-6  mt-24">
-        <div className="bg-white max-w-3xl w-full rounded-lg shadow-lg p-6 space-y-6">
+      {isLoggedIn ? <Header /> : <GuestHeader />}
+      <div className="min-h-screen flex items-center justify-center p-6 mt-24">
+        <div className="bg-white max-w-3xl w-full rounded-lg shadow-lg p-6 space-y-3">
           <div className="flex gap-2 justify-center items-center">
-             <h2 className="text-center text-base font-semibold text-gray-800">
-            Set Your Delivery Location
-          </h2>
-          <h2 className="text-center text-xs font-normal text-gray-600">
-            (inside kathmandu valley only!)
-          </h2>
+            <h2 className="text-center text-base font-semibold text-gray-800">
+              Set Your Delivery Location
+            </h2>
           </div>
-         
-          {errorMessage && (
-  <div className="text-red-600 text-sm bg-red-100 border border-red-300 px-4 py-2 rounded mt-2 shadow-sm flex items-center justify-center">
-   ⚠️  {errorMessage}
-  </div>
-)}
 
+          {errorMessage && (
+            <div
+              ref={errorRef}
+              className="text-red-600 text-sm bg-red-100 border border-red-300 px-4 py-2 rounded mt-2 shadow-sm flex items-center justify-center"
+            >
+              ⚠️ {errorMessage}
+            </div>
+          )}
 
           <div className="flex items-center space-x-2 text-gray-700 text-xs font-medium">
             <FaMapMarkerAlt className="text-black text-xl" />
-            <span className="truncate text-gray-500">{address}</span>
+            <span>{address ? address : "No Location set yet!"}</span>
           </div>
 
-         <div className={`flex items-center bg-white/95 backdrop-blur-md border-2 ${searchInput ? 'border-orange-300 shadow-2xl' : 'border-white/30 shadow-xl'} rounded-full overflow-hidden transition-all duration-500 transform h-12 w-full`}>
-  <div className="flex-1 relative">
-    <input
-      type="text"
-      placeholder="Search Location"
-      value={searchInput}
-      onChange={(e) => setSearchInput(e.target.value)}
-      className="w-full px-6 py-4 text-sm text-gray-800 bg-transparent focus:outline-none placeholder-gray-500"
-    />
-    {searchInput && (
-      <button
-        type="button"
-        onClick={() => setSearchInput("")}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500"
-        aria-label="Clear"
-      >
-        <FaTimes />
-      </button>
-    )}
-  </div>
+          <div
+            className={`flex items-center bg-white/95 backdrop-blur-md border-2 ${
+              searchInput ? "border-orange-300 shadow-2xl" : "border-white/30 shadow-xl"
+            } rounded-full overflow-hidden transition-all duration-500 transform h-12 w-full`}
+          >
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search Location"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full px-6 py-4 text-sm text-gray-800 bg-transparent focus:outline-none placeholder-gray-500"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => setSearchInput("")}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500"
+                  aria-label="Clear"
+                >
+                  <FaTimes />
+                </button>
+              )}
+            </div>
 
-  <button
-    onClick={handleSearch}
-    className="px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group"
-    title="Search"
-  >
-    <span className="relative z-10 flex items-center gap-2">
-      <FaSearch />
-      <span className="hidden sm:inline">Search</span>
-    </span>
-    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-  </button>
-</div>
+            <button
+              onClick={handleSearch}
+              className="px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group"
+              title="Search"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <FaSearch />
+                <span className="hidden sm:inline">Search</span>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+            </button>
+          </div>
 
-
-          <div className="flex justify-start gap-3">
+          <div className="flex justify-start gap-3 items-center">
             <FaMapMarkerAlt className="text-red-600" />
+
             <button
               onClick={chooseCurrentLocation}
               disabled={loadingLocation}
-              className="text-red-600 text-sm flex font-semibold h-10 w-48 rounded transition"
+              className="text-red-600 text-sm flex font-semibold h-10 w-48 rounded transition mt-5"
             >
-              {loadingLocation ? "Locating..." : "Choose Current Location"}
+              {loadingLocation ? "Locating current location..." : "Choose Current Location"}
             </button>
           </div>
 
@@ -294,7 +331,7 @@ const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
           <div className="flex justify-center space-x-6">
             <button
               onClick={() => navigate("/delivo-eats")}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700  font-medium text-sm h-10 w-32 rounded  transition"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm h-10 w-32 rounded transition"
             >
               Cancel
             </button>
@@ -318,7 +355,7 @@ const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
           pointer-events: none;
         }
       `}</style>
-      <Footer/>
+      <Footer />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { BiArrowToRight } from 'react-icons/bi';
-import { FaLock } from 'react-icons/fa';
+import { FaHeart, FaLock } from 'react-icons/fa'; // Added FaHeart for favorites
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import img from "../assets/images/loginImage.png";
@@ -13,7 +13,12 @@ export default function Restaurant({ searchTerm = "" }) {
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState([]);
 
+  const token = localStorage.getItem("token");
+  const isLoggedIn = token && token.trim() !== "" && token !== "undefined";
+
+  // Fetch restaurants
   useEffect(() => {
     const fetchAcceptedRestaurants = async () => {
       try {
@@ -29,6 +34,25 @@ export default function Restaurant({ searchTerm = "" }) {
     fetchAcceptedRestaurants();
   }, []);
 
+  // Fetch favorites if logged in
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!isLoggedIn) return;
+
+      try {
+        const res = await axios.get('http://localhost:5000/api/customer/get/favorites', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const ids = res.data.map(r => r._id);
+        setFavoriteIds(ids);
+      } catch (error) {
+        console.error('Failed to fetch favorites', error);
+      }
+    };
+    fetchFavorites();
+  }, [isLoggedIn, token]);
+
+  // Filter restaurants based on searchTerm
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredRestaurants(restaurants);
@@ -42,6 +66,8 @@ export default function Restaurant({ searchTerm = "" }) {
       );
     }
   }, [searchTerm, restaurants]);
+
+  // Socket.io update for restaurant status
   useEffect(() => {
     socket.on('restaurantStatusUpdate', ({ restaurantId, isOnline }) => {
       setRestaurants(prev =>
@@ -56,13 +82,38 @@ export default function Restaurant({ searchTerm = "" }) {
     };
   }, []);
 
+  // Toggle favorite function
+  const toggleFavorite = async (e, restaurantId) => {
+    e.stopPropagation(); // Prevent card click navigation
+
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
+    const isFav = favoriteIds.includes(restaurantId);
+
+    try {
+      if (isFav) {
+        await axios.post('http://localhost:5000/api/customer/favorites/remove',
+          { restaurantId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setFavoriteIds(prev => prev.filter(id => id !== restaurantId));
+      } else {
+        await axios.post('http://localhost:5000/api/customer/favorites/add',
+          { restaurantId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setFavoriteIds(prev => [...prev, restaurantId]);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
   const handleCardClick = (restaurant) => {
-    // const token = localStorage.getItem("token");
-    // if (!token || token.trim() === "" || token === "undefined") {
-    //   navigate("/login");
-    // } else {
-      navigate(`/certain-restaurant/${restaurant._id}`);
-    // }
+    navigate(`/certain-restaurant/${restaurant._id}`);
   };
 
   if (loading) {
@@ -75,42 +126,57 @@ export default function Restaurant({ searchTerm = "" }) {
 
   return (
     <>
-     <div className="flex justify-between items-center mb-2">
-             <h1 className='text-base font-semibold'>Restaurants</h1>
-             <button
-               onClick={() => navigate("/delivo-eats/all-restaurant")}
-               className="flex items-center gap-1 text-sm font-normal text-black hover:underline"
-             >
-               View All <BiArrowToRight className="text-base" />
-             </button>
-               </div>  
+      <div className="flex justify-between items-center mb-2">
+        <h1 className='text-base font-semibold'>Restaurants</h1>
+        <button
+          onClick={() => navigate("/delivo-eats/all-restaurant")}
+          className="flex items-center gap-1 text-sm font-normal text-black hover:underline"
+        >
+          View All <BiArrowToRight className="text-base" />
+        </button>
+      </div>  
 
-      <div className="grid grid-cols-4  gap-4 mt-2">
-        {filteredRestaurants.slice(0, 8).map((restaurant) => (
-          <div
-            key={restaurant._id}
-            onClick={() => handleCardClick(restaurant)}
-            className="p-4 bg-white rounded hover:shadow-lg cursor-pointer transition"
-          >
-            <img
-              src={restaurant.logoImage || img}
-              alt={restaurant.restaurantName}
-              className="w-full h-40 object-cover rounded mb-3"
-            />
-            <h3 className="text-base font-semibold mb-1 flex items-center justify-between">
-              {restaurant.restaurantName}
-              {!restaurant.isOnline && (
-                 <span className="flex items-center text-xs text-red-500 font-medium ml-2">
-                                        <FaLock className="w-3 h-3 mr-1" />
-                                        Closed
-                                      </span>
-              )}
-            </h3>
-            <p className="text-gray-600 text-xs">
-              {restaurant.city || "Location not available"}
-            </p>
-          </div>
-        ))}
+      <div className="grid grid-cols-4 gap-4 mt-2">
+        {filteredRestaurants.slice(0, 8).map((restaurant) => {
+          const isFavorite = favoriteIds.includes(restaurant._id);
+          return (
+            <div
+              key={restaurant._id}
+              onClick={() => handleCardClick(restaurant)}
+              className="p-4 bg-white rounded hover:shadow-lg cursor-pointer transition relative"
+            >
+              <img
+                src={restaurant.logoImage || img}
+                alt={restaurant.restaurantName}
+                className="w-full h-40 object-cover rounded mb-3"
+              />
+
+              {/* Favorite toggle button */}
+              <button
+                className="absolute top-5 right-5 bg-white/80 backdrop-blur-sm p-1.5 rounded-full hover:bg-white shadow"
+                onClick={(e) => toggleFavorite(e, restaurant._id)}
+                title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <FaHeart
+                  className={isFavorite ? "text-red-600 fill-red-600" : "text-gray-600 hover:text-red-500"}
+                />
+              </button>
+
+              <h3 className="text-base font-semibold mb-1 flex items-center justify-between">
+                {restaurant.restaurantName}
+                {!restaurant.isOnline && (
+                  <span className="flex items-center text-xs text-red-500 font-medium ml-2">
+                    <FaLock className="w-3 h-3 mr-1" />
+                    Closed
+                  </span>
+                )}
+              </h3>
+              <p className="text-gray-600 text-xs">
+                {restaurant.city || "Location not available"}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </>
   );

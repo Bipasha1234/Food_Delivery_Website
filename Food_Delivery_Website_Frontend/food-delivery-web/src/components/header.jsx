@@ -33,8 +33,8 @@ const handleProtectedClick = (path, state = {}) => {
         </Link>
 
         <Link
-          to="/all-restaurant"
-          className={`${isActive('/all-restaurant') ? 'underline underline-offset-4 text-black ' : ''}`}
+          to="/delivo-eats/all-restaurant"
+          className={`${isActive('/delivo-eats/all-restaurant') ? 'underline underline-offset-4 text-black ' : ''}`}
         >
           Restaurants
         </Link>
